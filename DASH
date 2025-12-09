@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Dashboard V25.3 – Título Exportable</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&
+family=Montserrat+Alternates:wght@600;700;800&display=swap" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<style>
+
+/* ========================================================= */
+/* PALETA APPLE 3D */
+/* ========================================================= */
+:root {
+    --blue-base: #1E81B0;
+    --blue-light: #6EC8FF;
+
+    --green-base: #00C851;
+    --green-light: #7CFFB8;
+
+    --yellow-base: #E5C44A;
+    --yellow-light: #FFF3C4;
+
+    --gris-borde: #d8e1e9;
+}
+
+/* ========================================================= */
+/* FONDO CORPORATIVO */
+/* ========================================================= */
+body {
+    font-family: "Nunito", sans-serif;
+    margin: 0;
+    padding: 0;
+
+    background: #f4f7fa;
+    background-image:
+        linear-gradient(135deg, rgba(255,255,255,0.4) 25%, transparent 25%),
+        linear-gradient(225deg, rgba(255,255,255,0.4) 25%, transparent 25%),
+        linear-gradient(45deg, rgba(255,255,255,0.4) 25%, transparent 25%),
+        linear-gradient(315deg, rgba(255,255,255,0.4) 25%, #f4f7fa 25%);
+    background-size: 50px 50px;
+}
+
+/* ========================================================= */
+/* ENCABEZADO EXPORTABLE */
+/* ========================================================= */
+header {
+    background: var(--blue-base);
+    color: white;
+    text-align: center;
+    padding: 22px 0;
+    font-size: 42px;
+    font-family: "Montserrat Alternates", sans-serif;
+    font-weight: 900;
+    position: relative;
+    z-index: 10;
+}
+
+/* ========================================================= */
+/* EXPORT AREA */
+/* ========================================================= */
+#exportArea {
+    position: relative;
+    width: 100%;
+    padding-bottom: 20px;
+    background: inherit;
+}
+
+/* Imagen de fondo corregida */
+#bgDashboard {
+    position: absolute;
+    top: 150px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 85%;
+    height: calc(100% - 150px);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: top center;
+    opacity: 1;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ========================================================= */
+/* LAYOUT */
+/* ========================================================= */
+.layout {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+/* ========================================================= */
+/* LATERALES */
+/* ========================================================= */
+.lateral {
+    width: 18%;
+    display: flex;
+    justify-content: center;
+}
+
+.lateral-inner {
+    width: 90%;
+    height: 330px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+/* ========================================================= */
+/* PANEL CENTRAL */
+/* ========================================================= */
+.center-panel {
+    width: 64%;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+}
+
+/* ========================================================= */
+/* ANILLO 3D */
+/* ========================================================= */
+#orbital_container {
+    position: relative;
+    width: 680px;
+    height: 680px;
+    margin: auto;
+}
+
+#canvasRing {
+    width: 380px;
+    height: 380px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#avance_centro {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 72px;
+    font-weight: 900;
+    color: var(--green-base);
+    z-index: 9;
+    text-shadow: 0 3px 8px rgba(0,0,0,0.25);
+}
+
+/* ========================================================= */
+/* BURBUJAS 3D */
+/* ========================================================= */
+.bubble-orbita {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    animation: float 3s ease-in-out infinite;
+}
+
+.bubble {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+
+    background: radial-gradient(circle at 30% 30%, #dff3ff, #7ab8e0);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    font-weight: 800;
+    font-size: 20px;
+    color: #00395c;
+
+    box-shadow:
+        0 12px 28px rgba(0,0,0,0.22),
+        inset 0 8px 14px rgba(255,255,255,0.55),
+        inset 0 -4px 8px rgba(0,0,0,0.2);
+
+    border: 3px solid rgba(255,255,255,0.65);
+}
+
+.bubble small {
+    font-size: 16px;
+    font-weight: 700;
+    opacity: 0.9;
+}
+
+/* Finalizadas */
+.bubble-finalizadas {
+    background: radial-gradient(circle at 30% 30%, var(--green-light), var(--green-base));
+    color: #003f1d;
+    border-color: rgba(255,255,255,0.75);
+    box-shadow:
+        0 15px 30px rgba(0,0,0,0.25),
+        inset 0 10px 18px rgba(255,255,255,0.55),
+        inset 0 -4px 10px rgba(0,0,0,0.2),
+        0 0 25px rgba(0,255,128,0.45);
+}
+
+/* Pendientes por Instalar */
+.bubble-pendientes {
+    background: radial-gradient(circle at 30% 30%, var(--yellow-light), var(--yellow-base));
+    color: #5A4300;
+
+    border-color: rgba(255,255,255,0.85);
+    box-shadow:
+        0 12px 28px rgba(0,0,0,0.18),
+        inset 0 10px 18px rgba(255,255,255,0.55),
+        inset 0 -4px 10px rgba(0,0,0,0.2);
+}
+
+@keyframes float {
+    0% { transform: translate(-50%, -50%) translateY(0); }
+    50% { transform: translate(-50%, -50%) translateY(-10px); }
+    100% { transform: translate(-50%, -50%) translateY(0); }
+}
+
+/* ========================================================= */
+/* TABLAS */
+/* ========================================================= */
+.tablas-flex {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    margin-top: 20px;
+}
+
+.tabla-box {
+    width: 45%;
+    background: white;
+    padding: 12px;
+    border-radius: 14px;
+    box-shadow: 0 5px 12px rgba(0,0,0,0.08);
+}
+
+th {
+    background: var(--blue-base);
+    color: white;
+    padding: 8px;
+    border-radius: 6px;
+}
+
+td {
+    padding: 8px;
+}
+
+/* ========================================================= */
+/* BOTONERA */
+/* ========================================================= */
+.botonera {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.botonera .btn {
+    background: var(--blue-base);
+    color: white;
+    padding: 10px 14px;
+    margin: 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: none;
+}
+
+#titulo_proyecto {
+    width: 400px;
+    padding: 10px;
+    margin: 20px auto;
+    display: block;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="exportArea">
+
+    <!-- TÍTULO DEL PROYECTO (YA EXPORTA PERFECTO) -->
+    <header id="titulo_header">PROYECTO</header>
+
+    <!-- IMAGEN DE FONDO -->
+    <div id="bgDashboard"></div>
+
+    <!-- LAYOUT -->
+    <div class="layout">
+
+        <!-- LATERAL IZQUIERDO -->
+        <div class="lateral">
+            <div class="lateral-inner" id="latLeft"></div>
+        </div>
+
+        <!-- PANEL CENTRAL -->
+        <div class="center-panel">
+
+            <!-- DONA 3D + BURBUJAS -->
+            <div id="orbital_container">
+
+                <canvas id="canvasRing" width="380" height="380"></canvas>
+
+                <div id="avance_centro">0%</div>
+
+                <div id="pills_orbita"></div>
+
+            </div>
+
+            <!-- TABLAS -->
+            <div class="tablas-flex">
+
+                <div class="tabla-box">
+                    <h3>Sucursales Atendidas</h3>
+                    <table id="tablaAtendidas"></table>
+                </div>
+
+                <div class="tabla-box">
+                    <h3>Sucursales Asignadas</h3>
+                    <table id="tablaAsignadas"></table>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- LATERAL DERECHO -->
+        <div class="lateral">
+            <div class="lateral-inner" id="latRight"></div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- BOTONES (NO EXPORTAN) -->
+<div class="botonera">
+
+    <input type="file" id="csvUnico" accept=".csv" style="display:none">
+    <button class="btn" onclick="csvUnico.click()">Actualizar CSV</button>
+
+    <input type="file" id="inputBg" accept="image/*" style="display:none" onchange="procesarBackground()">
+    <button class="btn" onclick="inputBg.click()">Imagen Fondo Dashboard</button>
+
+    <button class="btn" onclick="exportarJPG()">Exportar JPG Premium</button>
+
+</div>
+
+<input id="titulo_proyecto" placeholder="Título del proyecto"
+       oninput="titulo_header.textContent = this.value">
+
+
+<!-- ========================================================= -->
+<!-- JAVASCRIPT COMPLETO -->
+<!-- ========================================================= -->
+
+<script>
+
+let kpiValues = {};
+let atendidas = [];
+let asignadas = [];
+
+/* ========================================================= */
+/* PROCESAR CSV */
+/* ========================================================= */
+
+csvUnico.addEventListener("change", () => {
+    Papa.parse(csvUnico.files[0], {
+        header: true,
+        skipEmptyLines: true,
+        complete: res => procesarCSV(res.data)
+    });
+});
+
+function procesarCSV(rows) {
+
+    kpiValues = {};
+    atendidas = [];
+    asignadas = [];
+
+    rows.forEach(r => {
+
+        if (r.Tipo === "KPI")
+            kpiValues[r.KPI] = Number(r.Valor);
+
+        if (r.Tipo === "ATENDIDA")
+            atendidas.push([r.Sucursal, r.Estado, r.Responsable, r.Estatus, r.Fecha]);
+
+        if (r.Tipo === "ASIGNADA")
+            asignadas.push([r.Sucursal, r.Estado, r.Responsable, r.Estatus, r.Fecha]);
+    });
+
+    /* KPI NUEVO → Pendientes por Instalar = Programadas + Reprogramadas */
+    const programadas = kpiValues["Programadas"] || 0;
+    const reprogramadas = kpiValues["Reprogramadas"] || 0;
+    kpiValues["Pendientes_por_Instalar"] = programadas + reprogramadas;
+
+    renderKPIs();
+    renderTablas();
+    dibujarAnillo3D();
+}
+
+
+/* ========================================================= */
+/* TABLAS */
+/* ========================================================= */
+
+function renderTable(id, data) {
+
+    const table = document.getElementById(id);
+
+    table.innerHTML = `
+        <tr>
+            <th>Sucursal</th>
+            <th>Estado</th>
+            <th>Responsable</th>
+            <th>Estatus</th>
+            <th>Fecha</th>
+        </tr>
+    `;
+
+    data.forEach(r => {
+        table.innerHTML += `
+            <tr>
+                <td>${r[0]}</td>
+                <td>${r[1]}</td>
+                <td>${r[2]}</td>
+                <td>${r[3]}</td>
+                <td>${r[4]}</td>
+            </tr>`;
+    });
+}
+
+function renderTablas() {
+    renderTable("tablaAtendidas", atendidas);
+    renderTable("tablaAsignadas", asignadas);
+}
+
+
+/* ========================================================= */
+/* ICONOS */
+/* ========================================================= */
+
+const icons = {
+    Finalizadas: "💎",
+    En_Progreso: "🔧",
+    Programadas: "📅",
+    Canceladas: "❌",
+    Rollback: "⏪",
+    Pendiente_Cliente: "⏳",
+    Reprogramadas: "🔄",
+    Pendientes_por_Instalar: "📦"
+};
+
+
+/* ========================================================= */
+/* BURBUJAS 3D ORBITALES */
+/* ========================================================= */
+
+function renderKPIs() {
+
+    const cont = document.getElementById("pills_orbita");
+    cont.innerHTML = "";
+
+    const items = Object.entries(kpiValues);
+    const n = items.length;
+
+    const cx = 340;
+    const cy = 340;
+    const radius = 260;
+
+    items.forEach(([kpi, val], i) => {
+
+        const angle = (-Math.PI / 2) + (i * (Math.PI * 2 / n));
+        const x = cx + radius * Math.cos(angle);
+        const y = cy + radius * Math.sin(angle);
+
+        let clase = "bubble";
+
+        if (kpi === "Finalizadas")
+            clase = "bubble bubble-finalizadas";
+
+        if (kpi === "Pendientes_por_Instalar")
+            clase = "bubble bubble-pendientes";
+
+        cont.innerHTML += `
+            <div class="bubble-orbita" style="left:${x}px; top:${y}px;">
+                <div class="${clase}">
+                    <span style="font-size:32px">${icons[kpi]}</span>
+                    <span style="font-size:26px; font-weight:900">${val}</span>
+                    <small>${kpi.replaceAll("_"," ")}</small>
+                </div>
+            </div>
+        `;
+    });
+}
+
+
+/* ========================================================= */
+/* ANILLO 3D APPLE */
+/* ========================================================= */
+
+function dibujarAnillo3D() {
+
+    const canvas = document.getElementById("canvasRing");
+    const ctx = canvas.getContext("2d");
+
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2;
+
+    const outer = 160;
+    const inner = 110;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    /* Degradado Apple */
+    const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    grad.addColorStop(0, "#6EC8FF");
+    grad.addColorStop(1, "#1E81B0");
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, outer, 0, Math.PI * 2);
+    ctx.arc(cx, cy, inner, Math.PI * 2, 0, true);
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, outer, 0, Math.PI * 2);
+    ctx.strokeStyle = "rgba(110,200,255,0.45)";
+    ctx.lineWidth = 12;
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, inner, 0, Math.PI * 2);
+    ctx.strokeStyle = "rgba(0,0,0,0.15)";
+    ctx.lineWidth = 8;
+    ctx.stroke();
+
+    const total = Object.values(kpiValues).reduce((a,b)=>a+b,0);
+    const fin = kpiValues["Finalizadas"] || 0;
+
+    avance_centro.textContent = total
+        ? Math.round((fin / total) * 100) + "%"
+        : "0%";
+}
+
+
+/* ========================================================= */
+/* PROCESAR IMAGEN FONDO */
+/* ========================================================= */
+
+function procesarBackground() {
+
+    const file = inputBg?.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = e => {
+        const img = new Image();
+        img.onload = () => removeWhiteBg(img);
+        img.src = e.target.result;
+    };
+
+    reader.readAsDataURL(file);
+}
+
+function removeWhiteBg(img) {
+
+    const c = document.createElement("canvas");
+    const ctx = c.getContext("2d");
+
+    c.width = img.width;
+    c.height = img.height;
+
+    ctx.drawImage(img, 0, 0);
+
+    const d = ctx.getImageData(0, 0, c.width, c.height);
+    const p = d.data;
+
+    for (let i = 0; i < p.length; i += 4) {
+        if (p[i] + p[i+1] + p[i+2] > 690)
+            p[i+3] = 0;
+    }
+
+    ctx.putImageData(d, 0, 0);
+
+    bgDashboard.style.backgroundImage = `url("${c.toDataURL("image/png")}")`;
+}
+
+
+/* ========================================================= */
+/* EXPORTACIÓN PREMIUM */
+/* ========================================================= */
+
+function exportarJPG() {
+
+    const botonera = document.querySelector(".botonera");
+    const inputTitulo = document.getElementById("titulo_proyecto");
+
+    botonera.style.display = "none";
+    inputTitulo.style.display = "none";
+
+    setTimeout(() => {
+
+        html2canvas(document.getElementById("exportArea"), {
+            scale: 4,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: null
+        }).then(canvas => {
+
+            botonera.style.display = "block";
+            inputTitulo.style.display = "block";
+
+            const link = document.createElement("a");
+            link.download = "dashboard_v25_3.jpg";
+            link.href = canvas.toDataURL("image/jpeg", 1.0);
+            link.click();
+        });
+
+    }, 150);
+}
+
+</script>
+
+</body>
+</html>
